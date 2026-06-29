@@ -3,7 +3,7 @@
 A redesigned influencer discovery application built for the Wobb Vibe Coder Intern assignment.
 
 ## Live Demo
-[Vercel URL]
+https://aadigs.github.io/wobb-influencer-search/
 
 ## Setup
 ```bash
