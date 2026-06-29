@@ -7,16 +7,13 @@ interface LayoutProps {
 export function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen bg-slate-50">
-      <header className="sticky top-0 z-50 bg-[#1E1B4B] text-white px-6 py-4 shadow-sm flex items-center justify-between">
+      <header className="sticky top-0 z-50 bg-white px-4 sm:px-6 py-4 shadow-sm border-b border-slate-200 flex items-center justify-between">
         <div className="flex items-center">
-          <div className="w-8 h-8 rounded-full bg-[#2563EB] flex items-center justify-center">
-            <span className="font-bold text-white text-sm">W</span>
-          </div>
-          <span className="font-bold text-xl ml-2">wobb</span>
+          <img src="/wobb logo.png" alt="Wobb" className="h-8 w-auto object-contain" />
         </div>
-        <span className="text-blue-300 text-sm">Influencer Discovery</span>
+        <span className="text-slate-400 text-xs sm:text-sm">Influencer Discovery</span>
       </header>
-      <main className="max-w-7xl mx-auto px-6 py-8">{children}</main>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">{children}</main>
     </div>
   )
 }

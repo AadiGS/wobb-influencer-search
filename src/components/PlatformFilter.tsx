@@ -3,9 +3,9 @@ import type { Platform } from '@/types'
 import { PLATFORMS, getPlatformLabel } from '@/utils/dataHelpers'
 
 const platformIcons: Record<Platform, React.ReactNode> = {
-  instagram: <Camera size={16} className="inline mr-1.5" />,
-  youtube: <Play size={16} className="inline mr-1.5" />,
-  tiktok: <Music2 size={16} className="inline mr-1.5" />,
+  instagram: <Camera size={16} className="inline mr-1.5 shrink-0" />,
+  youtube: <Play size={16} className="inline mr-1.5 shrink-0" />,
+  tiktok: <Music2 size={16} className="inline mr-1.5 shrink-0" />,
 }
 
 interface PlatformFilterProps {
@@ -23,20 +23,20 @@ export function PlatformFilter({
 }: PlatformFilterProps) {
   return (
     <div className="mb-6">
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-1 inline-flex mb-4">
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-1 flex sm:inline-flex mb-4">
         {PLATFORMS.map((p) => (
           <button
             key={p}
             type="button"
             onClick={() => onChange(p)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center ${
+            className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center justify-center ${
               selected === p
                 ? 'bg-blue-600 text-white'
                 : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
             {platformIcons[p]}
-            {getPlatformLabel(p)}
+            <span>{getPlatformLabel(p)}</span>
           </button>
         ))}
       </div>

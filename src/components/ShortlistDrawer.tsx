@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import useShortlistStore from '@/store/useShortlistStore'
 import { ListChecks, X, Users } from 'lucide-react'
+import { Avatar } from './Avatar'
 
 const platformBadge: Record<string, string> = {
   instagram: 'bg-pink-100 text-pink-700',
@@ -22,7 +23,7 @@ export default function ShortlistDrawer() {
   const { items, removeFromShortlist, clearShortlist } = useShortlistStore()
 
   const drawerRef = useRef<HTMLDivElement>(null)
-  const fabRef = useRef<HTMLButtonElement>(null)
+  const fabRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!isOpen) return
@@ -42,19 +43,20 @@ export default function ShortlistDrawer() {
   return (
     <>
       {/* FAB */}
-      <button
-        ref={fabRef}
-        onClick={() => setIsOpen((o) => !o)}
-        className="fixed bottom-6 right-6 z-50 relative w-14 h-14 rounded-full bg-blue-600 text-white shadow-xl hover:bg-blue-700 transition-all flex items-center justify-center"
-        aria-label="Open shortlist"
-      >
-        <ListChecks size={24} />
-        {items.length > 0 && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center font-bold">
-            {items.length}
-          </span>
-        )}
-      </button>
+      <div ref={fabRef} className="fixed bottom-8 right-6 z-50" style={{ transform: 'translateZ(0)' }}>
+        <button
+          onClick={() => setIsOpen((o) => !o)}
+          className="relative w-14 h-14 rounded-full bg-blue-600 text-white shadow-xl hover:bg-blue-700 transition-all flex items-center justify-center"
+          aria-label="Open shortlist"
+        >
+          <ListChecks size={24} />
+          {items.length > 0 && (
+            <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center font-bold">
+              {items.length}
+            </span>
+          )}
+        </button>
+      </div>
 
       {/* Drawer */}
       <AnimatePresence>
@@ -65,7 +67,7 @@ export default function ShortlistDrawer() {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 400, opacity: 0 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed bottom-24 right-6 w-96 max-h-[70vh] rounded-2xl bg-white shadow-2xl border border-slate-200 flex flex-col overflow-hidden z-40"
+            className="fixed bottom-24 sm:bottom-28 left-2 right-2 sm:left-auto sm:right-6 sm:w-96 max-h-[70vh] rounded-2xl bg-white shadow-2xl border border-slate-200 flex flex-col overflow-hidden z-40"
           >
             {/* Drag handle */}
             <div className="w-10 h-1 bg-slate-200 rounded-full mx-auto mt-3 mb-0 cursor-grab" />
@@ -110,7 +112,7 @@ export default function ShortlistDrawer() {
                     key={item.user_id}
                     className="px-4 py-3 flex items-center gap-3 hover:bg-slate-50 border-b border-slate-50 last:border-0"
                   >
-                    <img
+                    <Avatar
                       src={item.picture}
                       alt={item.fullname}
                       className="w-9 h-9 rounded-full object-cover shrink-0"
