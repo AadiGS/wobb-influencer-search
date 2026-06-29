@@ -1,80 +1,60 @@
-# Wobb Frontend Assignment
+# Wobb Influencer Search
 
-A starter influencer search application built with **React**, **TypeScript**, **Vite**, and **Tailwind CSS**. This project is intentionally left in a rough-but-working state for candidates to improve.
+A redesigned influencer discovery application built for the Wobb Vibe Coder Intern assignment.
 
-## Getting Started
+## Live Demo
+[Vercel URL]
 
+## Setup
 ```bash
 npm install
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173) to view the app.
+## What Changed
 
-## What's Included
+### Bugs Fixed
+- Engagement rate was multiplying by 10000 instead of 100 (showing 1255% instead of 1.26%)
+- Username search was case-sensitive (searching "CRISTIANO" returned nothing)
+- Stale closure in click counter (removed - it was dead code)
+- ProfileCard had a hardcoded w-[700px] class breaking all responsive layouts
+- DOM used as state storage via data-search attribute (removed)
+- react-beautiful-dnd was listed as a dependency but never imported
+- Missing alt attributes on all img tags
+- "Engagements" stat on profile page showed the rate percentage instead of the count
 
-- **Search / Dashboard** — filter influencers by platform (Instagram, YouTube, TikTok) and search by username or full name
-- **Profile Details** — click a profile to view extended data loaded from individual JSON files
-- **Routing** — `react-router-dom` with `/` (search) and `/profile/:username` (details)
+### Libraries Added
+- **zustand** - State management for the shortlist, replacing what would have been React Context
+- **lucide-react** - Icon library
+- **framer-motion** - Drawer animation
 
-Sample data lives in:
+### Features Implemented
+**Add to List / Shortlist:**
+- Add button on every ProfileCard and on the ProfileDetail page
+- Duplicate prevention (button shows "Added" if already shortlisted)
+- Persists across page refresh via localStorage (zustand persist middleware)
+- Floating action button (bottom-right) with item count badge
+- Slide-up animated drawer showing all shortlisted creators
+- Remove individual creators or clear all
+- Clicking a creator name in the drawer navigates to their profile
 
-- `src/assets/data/search/` — platform search results (10 profiles each)
-- `src/assets/data/profiles/` — detailed profile JSON per username
+**UI Redesign:**
+- Matches Wobb's own product design: dark navy header, blue primary (#2563EB), clean table layout
+- Responsive layout (removed all hardcoded pixel widths)
+- Proper stats grid on profile detail page
+- Platform-specific color badges
 
-## How to Submit
+### Assumptions
+- Single global shortlist (not named campaign lists)
+- 30 profiles across 3 platforms are demo data
 
-1. **Download or clone** this starter project to your machine.
-2. **Create a new repository** on your own GitHub account. Do not fork the original assignment repo — push your work to a repo you own.
-3. Complete the tasks below and push your changes to that repository.
-4. **Share the public GitHub repository URL** with us as your submission.
+### Trade-offs
+- No tests added due to time constraints - would add vitest + testing-library next
+- Framer Motion adds ~30KB gzipped; acceptable for animation quality
+- No pagination added - the 10-profile dataset per platform doesn't require it
 
-### Deadline (strict)
-
-- **Due:** **2 July 2026, 2:00 PM IST** (Indian Standard Time, UTC+5:30)
-- **Any git commits made after this deadline will disqualify your submission.** We will only consider the repository state as of the deadline; late commits will not be reviewed.
-- Make sure your final work is pushed **before** the cutoff.
-
-## AI Usage
-
-You may use any AI tools (Cursor, ChatGPT, Claude, GitHub Copilot, etc.). We are evaluating your final solution and engineering decisions.
-
-## Your Tasks
-
-Complete the following as part of your submission:
-
-1. **Find and fix all bugs and quality issues** — the codebase contains intentional bugs and quality issues. Identify and resolve them.
-
-2. **Completely redesign the UI/UX** — replace the basic layout with a polished, modern interface. Focus on usability, visual hierarchy, and delight.
-
-3. **Replace React Context with Zustand** — when you implement state management for the selected list, use [Zustand](https://github.com/pmndrs/zustand) instead of React Context.
-
-4. **Implement "Select profile & Add to List"** — the disabled "Add to List" button is a stub. Build the full feature:
-   - Select / add profiles to a persistent list
-   - View and manage the selected list
-   - Handle duplicates appropriately
-
-5. **Improve code quality and project structure** — refactor as needed, add proper types, and follow React best practices.
-
-6. **Optimize performance** — apply sensible optimizations where appropriate.
-
-7. **Use any libraries you need** — you are not limited to the current stack. Choose tools that help you deliver a great result (UI kits, state managers, testing libraries, etc.).
-
-## Scripts
-
-| Command        | Description              |
-| -------------- | ------------------------ |
-| `npm run dev`  | Start development server |
-| `npm run build`| Production build         |
-| `npm run lint` | Run ESLint               |
-
-## Submission Notes
-
-- Document any assumptions or trade-offs in your README
-- Ensure `npm run build` passes before submitting
-- Focus on demonstrating your judgment — not every possible feature needs to be built, but the core assignment items should be addressed thoughtfully
-- Double-check that your repo is public (or that we have access) and that the link is included in your submission
-- Please make meaningful commits throughout your work. We may review your commit history.
-- **Bonus:** Deploying the app (e.g. Vercel, Netlify, GitHub Pages) is optional but will be considered a plus — include the live URL in your submission if you do
-
-Good luck!
+### Remaining Improvements
+- Sort by followers / engagement rate
+- Filter by follower count range
+- Full ARIA/keyboard navigation compliance
+- Write unit tests for utility functions and store

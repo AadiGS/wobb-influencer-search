@@ -1,21 +1,22 @@
-import type { ReactNode } from "react";
-import { Link } from "react-router-dom";
+import type { ReactNode } from 'react'
 
 interface LayoutProps {
-  children: ReactNode;
-  title?: string;
+  children: ReactNode
 }
 
-export function Layout({ children, title }: LayoutProps) {
+export function Layout({ children }: LayoutProps) {
   return (
-    <div className="p-4 min-h-screen">
-      <header className="mb-6 border-b pb-4">
-        <Link to="/" className="text-xl font-semibold text-gray-900">
-          Influencer Search
-        </Link>
-        {title && <h1 className="text-2xl mt-2">{title}</h1>}
+    <div className="min-h-screen bg-slate-50">
+      <header className="sticky top-0 z-50 bg-[#1E1B4B] text-white px-6 py-4 shadow-sm flex items-center justify-between">
+        <div className="flex items-center">
+          <div className="w-8 h-8 rounded-full bg-[#2563EB] flex items-center justify-center">
+            <span className="font-bold text-white text-sm">W</span>
+          </div>
+          <span className="font-bold text-xl ml-2">wobb</span>
+        </div>
+        <span className="text-blue-300 text-sm">Influencer Discovery</span>
       </header>
-      <main>{children}</main>
+      <main className="max-w-7xl mx-auto px-6 py-8">{children}</main>
     </div>
-  );
+  )
 }

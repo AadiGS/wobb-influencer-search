@@ -1,163 +1,158 @@
-import { useEffect, useState } from "react";
-import { Link, useParams, useSearchParams } from "react-router-dom";
-import { Layout } from "@/components/Layout";
-import { VerifiedBadge } from "@/components/VerifiedBadge";
-import type { FullUserProfile, ProfileDetailResponse } from "@/types";
-import { formatEngagementRate } from "@/utils/formatters";
-import { loadProfileByUsername } from "@/utils/profileLoader";
+import { useEffect, useState } from 'react'
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
+import { ArrowLeft, ExternalLink } from 'lucide-react'
+import { Layout } from '@/components/Layout'
+import { VerifiedBadge } from '@/components/VerifiedBadge'
+import type { FullUserProfile, Platform, ProfileDetailResponse } from '@/types'
+import { formatFollowers, formatEngagementRate } from '@/utils/formatters'
+import { loadProfileByUsername } from '@/utils/profileLoader'
+import useShortlistStore from '@/store/useShortlistStore'
 
-function formatFollowersDetail(count: number) {
-  if (count >= 1000000) return (count / 1000000).toFixed(2) + "M";
-  if (count >= 1000) return (count / 1000).toFixed(1) + "K";
-  return String(count);
+const platformBadge: Record<string, string> = {
+  instagram: 'bg-pink-100 text-pink-700',
+  youtube: 'bg-red-100 text-red-700',
+  tiktok: 'bg-slate-100 text-slate-700',
+}
+
+const platformLabel: Record<string, string> = {
+  instagram: 'Instagram',
+  youtube: 'YouTube',
+  tiktok: 'TikTok',
 }
 
 export function ProfileDetailPage() {
-  const { username } = useParams<{ username: string }>();
-  const [searchParams] = useSearchParams();
-  const platform = searchParams.get("platform") || "unknown";
-  const [profileData, setProfileData] = useState<ProfileDetailResponse | null>(
-    null
-  );
-  const [loaded, setLoaded] = useState(false);
+  const { username } = useParams<{ username: string }>()
+  const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
+  const platform = searchParams.get('platform') || 'unknown'
+  const [profileData, setProfileData] = useState<ProfileDetailResponse | null>(null)
+  const [loaded, setLoaded] = useState(false)
+
+  const { addToShortlist, isInShortlist } = useShortlistStore()
 
   useEffect(() => {
-    if (!username) return;
-
+    if (!username) return
     loadProfileByUsername(username).then((data) => {
-      setProfileData(data);
-      setLoaded(true);
-    });
-  }, [username]);
+      setProfileData(data)
+      setLoaded(true)
+    })
+  }, [username])
 
   if (!username) {
     return (
       <Layout>
-        <p>Invalid profile</p>
-        <Link to="/">Back</Link>
+        <p className="text-slate-500">Invalid profile</p>
       </Layout>
-    );
+    )
   }
 
   if (!loaded) {
     return (
-      <Layout title={`@${username}`}>
-        <p className="text-gray-400">Loading...</p>
+      <Layout>
+        <p className="text-slate-400">Loading...</p>
       </Layout>
-    );
+    )
   }
 
   if (!profileData) {
     return (
-      <Layout title={`@${username}`}>
-        <p className="text-red-600 mb-4">
-          Could not load profile details for {username}
-        </p>
-        <Link to="/" className="text-blue-600 underline">
+      <Layout>
+        <p className="text-red-600 mb-4">Could not load profile details for {username}</p>
+        <button onClick={() => navigate('/')} className="text-blue-600 underline text-sm">
           Back to search
-        </Link>
+        </button>
       </Layout>
-    );
+    )
   }
 
-  const user: FullUserProfile = profileData.data.user_profile;
+  const user: FullUserProfile = profileData.data.user_profile
+  const inShortlist = isInShortlist(user.user_id)
+
+  const stats: { label: string; value: string | number | undefined }[] = [
+    { label: 'Followers', value: formatFollowers(user.followers) },
+    { label: 'Engagement Rate', value: formatEngagementRate(user.engagement_rate) },
+    ...(user.posts_count !== undefined ? [{ label: 'Posts', value: user.posts_count }] : []),
+    ...(user.avg_likes !== undefined ? [{ label: 'Avg Likes', value: formatFollowers(user.avg_likes) }] : []),
+    ...(user.avg_comments !== undefined ? [{ label: 'Avg Comments', value: user.avg_comments }] : []),
+    ...(user.avg_views !== undefined && user.avg_views > 0
+      ? [{ label: 'Avg Views', value: formatFollowers(user.avg_views) }]
+      : []),
+  ]
 
   return (
-    <Layout title={user.fullname}>
-      <Link to="/" className="text-sm text-blue-600 mb-4 inline-block">
-        ← Back to search
-      </Link>
+    <Layout>
+      <button
+        onClick={() => navigate('/')}
+        className="inline-flex items-center gap-1 hover:gap-2 transition-all text-blue-600 text-sm mb-6 cursor-pointer"
+      >
+        <ArrowLeft size={16} />
+        Back to search
+      </button>
 
-      <div className="flex gap-6 items-start text-left max-w-2xl mx-auto">
-        <img
-          src={user.picture}
-          className="w-24 h-24 rounded-full border"
-        />
-        <div className="flex-1">
-          <h2 className="text-xl font-bold">
-            @{user.username}
-            <VerifiedBadge verified={user.is_verified} />
-          </h2>
-          <p className="text-gray-600">{user.fullname}</p>
-          <p className="text-xs text-gray-400 mt-1">Platform: {platform}</p>
-
-          {user.description && (
-            <p className="mt-3 text-sm text-gray-700">{user.description}</p>
-          )}
-
-          <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-            <div className="border p-2 rounded">
-              <div className="text-gray-500">Followers</div>
-              <div className="font-semibold">
-                {formatFollowersDetail(user.followers)}
-              </div>
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <div className="flex items-start gap-5">
+          <img
+            src={user.picture}
+            alt={user.fullname}
+            className="w-20 h-20 rounded-full object-cover ring-2 ring-slate-200 shrink-0"
+          />
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h2 className="text-2xl font-bold text-slate-900">{user.fullname}</h2>
+              <VerifiedBadge verified={user.is_verified} />
             </div>
-            <div className="border p-2 rounded">
-              <div className="text-gray-500">Engagement Rate</div>
-              <div className="font-semibold">
-                {user.engagement_rate !== undefined
-                  ? (user.engagement_rate * 10000).toFixed(2) + "%"
-                  : "N/A"}
-              </div>
+            <p className="text-slate-500 text-sm mt-0.5">@{user.username}</p>
+            {platformBadge[platform] && (
+              <span className={`inline-block mt-2 text-xs px-2 py-0.5 rounded-full font-medium ${platformBadge[platform]}`}>
+                {platformLabel[platform]}
+              </span>
+            )}
+            {user.description && (
+              <p className="text-slate-600 text-sm mt-2">{user.description}</p>
+            )}
+
+            <div className="mt-4 flex items-center gap-3 flex-wrap">
+              {inShortlist ? (
+                <button
+                  disabled
+                  className="bg-green-50 text-green-700 border border-green-200 rounded-lg px-4 py-2 text-sm cursor-default"
+                >
+                  ✓ Added to Shortlist
+                </button>
+              ) : (
+                <button
+                  onClick={() => addToShortlist(user, platform as Platform)}
+                  className="bg-blue-600 text-white rounded-lg px-4 py-2 text-sm hover:bg-blue-700 transition-colors"
+                >
+                  + Add to Shortlist
+                </button>
+              )}
+
+              {user.url && (
+                <a
+                  href={user.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 text-blue-600 text-sm hover:underline"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <ExternalLink size={14} />
+                  View on {platformLabel[platform] ?? platform}
+                </a>
+              )}
             </div>
-            {user.posts_count !== undefined && (
-              <div className="border p-2 rounded">
-                <div className="text-gray-500">Posts</div>
-                <div className="font-semibold">{user.posts_count}</div>
-              </div>
-            )}
-            {user.avg_likes !== undefined && (
-              <div className="border p-2 rounded">
-                <div className="text-gray-500">Avg Likes</div>
-                <div className="font-semibold">
-                  {formatFollowersDetail(user.avg_likes)}
-                </div>
-              </div>
-            )}
-            {user.avg_comments !== undefined && (
-              <div className="border p-2 rounded">
-                <div className="text-gray-500">Avg Comments</div>
-                <div className="font-semibold">{user.avg_comments}</div>
-              </div>
-            )}
-            {user.avg_views !== undefined && user.avg_views > 0 && (
-              <div className="border p-2 rounded">
-                <div className="text-gray-500">Avg Views</div>
-                <div className="font-semibold">
-                  {formatFollowersDetail(user.avg_views)}
-                </div>
-              </div>
-            )}
-            {user.engagements !== undefined && (
-              <div className="border p-2 rounded">
-                <div className="text-gray-500">Engagements</div>
-                <div className="font-semibold">
-                  {formatEngagementRate(user.engagement_rate)}
-                </div>
-              </div>
-            )}
           </div>
+        </div>
 
-          {user.url && (
-            <a
-              href={user.url}
-              target="_blank"
-              className="inline-block mt-4 text-blue-600 text-sm"
-            >
-              View on platform →
-            </a>
-          )}
-
-          {/* TODO: candidates must implement Add to List feature */}
-          {/* TODO: candidates must implement Add to List feature */}
-          <button
-            disabled
-            className="block mt-4 px-4 py-2 bg-gray-300 text-gray-500 rounded cursor-not-allowed"
-          >
-            Add to List
-          </button>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6">
+          {stats.map((stat) => (
+            <div key={stat.label} className="bg-white rounded-xl border border-slate-200 p-4">
+              <div className="text-xs text-slate-500 uppercase tracking-wide mb-1">{stat.label}</div>
+              <div className="text-xl font-bold text-slate-900">{stat.value}</div>
+            </div>
+          ))}
         </div>
       </div>
     </Layout>
-  );
+  )
 }

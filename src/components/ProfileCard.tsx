@@ -1,57 +1,93 @@
-import { useNavigate } from "react-router-dom";
-import type { Platform, UserProfileSummary } from "@/types";
-import { VerifiedBadge } from "./VerifiedBadge";
+import { memo } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Check } from 'lucide-react'
+import type { Platform, UserProfileSummary } from '@/types'
+import { VerifiedBadge } from './VerifiedBadge'
+import { formatFollowers, formatEngagementRate } from '@/utils/formatters'
+import useShortlistStore from '@/store/useShortlistStore'
 
 interface ProfileCardProps {
-  profile: UserProfileSummary;
-  platform: Platform;
-  searchQuery: string;
-  onProfileClick?: (username: string) => void;
+  profile: UserProfileSummary
+  platform: Platform
 }
 
-function formatFollowersLocal(count: number) {
-  if (count >= 1000000) return (count / 1000000).toFixed(1) + "M followers";
-  if (count >= 1000) return (count / 1000).toFixed(0) + "K followers";
-  return count + " followers";
+const platformBadge: Record<Platform, string> = {
+  instagram: 'bg-pink-100 text-pink-700',
+  youtube: 'bg-red-100 text-red-700',
+  tiktok: 'bg-slate-100 text-slate-700',
 }
 
-export function ProfileCard({
-  profile,
-  platform,
-  searchQuery,
-  onProfileClick,
-}: ProfileCardProps) {
-  const navigate = useNavigate();
+const platformLabel: Record<Platform, string> = {
+  instagram: 'Instagram',
+  youtube: 'YouTube',
+  tiktok: 'TikTok',
+}
 
-  const handleClick = () => {
-    if (onProfileClick) onProfileClick(profile.username);
-    navigate(`/profile/${profile.username}?platform=${platform}`);
-  };
+function ProfileCard({ profile, platform }: ProfileCardProps) {
+  const navigate = useNavigate()
+  const { addToShortlist, isInShortlist } = useShortlistStore()
+  const inShortlist = isInShortlist(profile.user_id)
 
   return (
-    <div
-      onClick={handleClick}
-      className="flex items-center gap-3 p-3 border border-gray-300 mb-2 cursor-pointer hover:bg-gray-50 w-[700px]"
-      data-search={searchQuery}
+    <tr
+      onClick={() => navigate(`/profile/${profile.username}?platform=${platform}`)}
+      className="cursor-pointer hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-0"
     >
-      <img src={profile.picture} className="w-12 h-12 rounded-full" />
-      <div className="text-left flex-1">
-        <div className="font-bold">
-          @{profile.username}
-          <VerifiedBadge verified={profile.is_verified} />
+      <td className="px-4 py-3">
+        <div className="flex items-center gap-3">
+          <img
+            src={profile.picture}
+            alt={profile.fullname}
+            className="w-11 h-11 rounded-full object-cover shrink-0"
+          />
+          <div>
+            <div className="font-medium text-slate-900 text-sm flex items-center">
+              {profile.fullname}
+              <VerifiedBadge verified={profile.is_verified} />
+            </div>
+            <div className="text-slate-500 text-xs">@{profile.username}</div>
+          </div>
         </div>
-        <div className="text-sm text-gray-600">{profile.fullname}</div>
-        <div className="text-sm">{formatFollowersLocal(profile.followers)}</div>
-      </div>
-      {/* TODO: candidates must implement Add to List feature */}
-      {/* TODO: candidates must implement Add to List feature */}
-      <button
-        disabled
-        className="px-3 py-1 bg-gray-300 text-gray-500 text-sm rounded cursor-not-allowed"
-        onClick={(e) => e.stopPropagation()}
-      >
-        Add to List
-      </button>
-    </div>
-  );
+      </td>
+
+      <td className="px-4 py-3">
+        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${platformBadge[platform]}`}>
+          {platformLabel[platform]}
+        </span>
+      </td>
+
+      <td className="px-4 py-3 text-sm text-slate-900 font-medium">
+        {formatFollowers(profile.followers)}
+      </td>
+
+      <td className="px-4 py-3 text-sm text-slate-900">
+        {formatEngagementRate(profile.engagement_rate)}
+      </td>
+
+      <td className="px-4 py-3">
+        {inShortlist ? (
+          <button
+            disabled
+            className="inline-flex items-center gap-1.5 bg-green-50 text-green-600 border border-green-200 rounded-lg px-3 py-1.5 text-sm cursor-default"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Check size={16} />
+            Added
+          </button>
+        ) : (
+          <button
+            className="bg-blue-600 text-white rounded-lg px-3 py-1.5 text-sm hover:bg-blue-700 transition-colors"
+            onClick={(e) => {
+              e.stopPropagation()
+              addToShortlist(profile, platform)
+            }}
+          >
+            + Add
+          </button>
+        )}
+      </td>
+    </tr>
+  )
 }
+
+export default memo(ProfileCard)
