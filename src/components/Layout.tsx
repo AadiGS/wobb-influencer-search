@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import wobbLogo from '@/assets/images/wobb-logo.png'
 
 interface LayoutProps {
   children: ReactNode
@@ -9,7 +10,7 @@ export function Layout({ children }: LayoutProps) {
     <div className="min-h-screen bg-slate-50">
       <header className="sticky top-0 z-50 bg-white px-4 sm:px-6 py-4 shadow-sm border-b border-slate-200 flex items-center justify-between">
         <div className="flex items-center">
-          <img src="/wobb logo.png" alt="Wobb" className="h-8 w-auto object-contain" />
+          <img src={wobbLogo} alt="Wobb" className="h-8 w-auto object-contain" />
         </div>
         <span className="text-slate-400 text-xs sm:text-sm">Influencer Discovery</span>
       </header>
